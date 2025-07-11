@@ -11,7 +11,7 @@
         </div>
         <div class="action-buttons">
           <button @click="$emit('swap-names')" class="swap-names-btn">
-            ⇄ échanger noms
+            ⇄ Echanger noms
           </button>
           <button @click="toggleFullscreen" class="fullscreen-btn">
             📄 Feuille de match
@@ -22,24 +22,31 @@
 
     <!-- Saisies en cours -->
     <div v-if="player1Input || player2Input || player1Negative || player2Negative" class="current-inputs">
-      <h3>Saisies en cours</h3>
+      <h3>Saisie en cours</h3>
       <div class="inputs-container">
         <div v-if="player1Input || player1Negative" class="input-display player1">
-          <div class="player-label">Joueur 1</div>
+          <div class="player-label">{{ player1Name || 'Joueur 1' }}</div>
           <div class="input-value">
             <span v-if="player1Negative" class="negative-indicator">-</span>{{ player1Input || '?' }}
           </div>
         </div>
         <div v-if="player2Input || player2Negative" class="input-display player2">
-          <div class="player-label">Joueur 2</div>
+          <div class="player-label">{{ player2Name || 'Joueur 2' }}</div>
           <div class="input-value">
             <span v-if="player2Negative" class="negative-indicator">-</span>{{ player2Input || '?' }}
           </div>
         </div>
       </div>
+      <!-- Barre de progression pour validation automatique -->
+      <div v-if="autoValidateActive && (player1Input || player2Input)" class="auto-validate-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" :style="{ width: autoValidateProgress + '%' }"></div>
+        </div>
+        <div class="progress-text">Validation automatique dans {{ Math.ceil((100 - autoValidateProgress) / 33) }}s</div>
+      </div>
     </div>
-    <div v-else>
-      <ReprisesTable :reprises="reprises" :nbReprisesToShow="10" />
+    <div>
+      <ReprisesTable :reprises="reprises" :nbReprisesToShow="10" :player1-name="player1Name" :player2-name="player2Name" />
     </div>
     <button @click="$emit('new-game')" class="new-game-btn">
         🎯 Nouvelle partie
@@ -96,7 +103,7 @@
 
         <!-- Tableau complet des reprises -->
         <div class="fullscreen-table">
-          <ReprisesTable :reprises="reprises" />
+          <ReprisesTable :reprises="reprises" :player1-name="player1Name" :player2-name="player2Name" />
         </div>
       </div>
     </div>
@@ -140,6 +147,14 @@ export default {
     player2Name: {
       type: String,
       default: ''
+    },
+    autoValidateProgress: {
+      type: Number,
+      default: 0
+    },
+    autoValidateActive: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -612,113 +627,22 @@ export default {
   background: rgba(255,255,255,0.5);
 }
 
-@media (max-width: 768px) {
-  .header h2 {
-    font-size: 2rem;
-  }
-
-
-  .reprise-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    line-height: 1;
-  }
-
-  .reprise-number-big {
-    font-size: 3rem;
-    padding: 15px;
-    min-width: 100px;
-  }
-
-  .reprise-item {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .reprise-content {
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-  }
-
-  .reprise-number {
-    margin-right: 0;
-    margin-bottom: 10px;
-  }
-
-  .current-inputs h3 {
-    font-size: 1.5rem;
-  }
-
-  .inputs-container {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .input-display {
-    padding: 15px;
-  }
-
-  .player-label {
-    font-size: 1rem;
-  }
-
-  .input-value {
-    font-size: 15vw;
-  }
-
-  .new-game-btn {
-    padding: 12px 20px;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    line-height: 1;
-  }
-
-  .action-buttons {
-    gap: 8px;
-    margin-top: 10px;
-  }
-
-  .swap-names-btn, .fullscreen-btn {
-    padding: 6px 8px;
-    font-size: 0.8rem;
-  }
-
-  .reset-reprise-btn-mini {
-    width: 25px;
-    height: 25px;
-    font-size: 1rem;
-    bottom: 3px;
-    right: 3px;
-  }
-
-
-
-  .reprises-display::before {
-    width: 120px;
-    height: 150px;
-    bottom: 10px;
-    opacity: 0.1;
-  }
-}
 
 /* Styles pour les saisies en cours */
 .current-inputs {
-  margin-top: 20px;
-  padding: 20px;
-  background: rgba(0,0,0,0.8);
-  border-radius: 15px;
-  border: 2px solid rgba(255,255,255,0.2);
-  position: relative;
-  z-index: 1;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px;
+  background: rgba(0,0,0,0.95);
+  border-radius: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  min-width: 400px;
 }
 
 .current-inputs h3 {
@@ -731,47 +655,101 @@ export default {
 
 .inputs-container {
   display: flex;
-  gap: 15px;
+  gap: 30px;
   justify-content: center;
+  align-items: center;
 }
 
 .input-display {
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.input-display.player1 {
-  border-color: #27ae60;
-  background: rgba(39, 174, 96, 0.2);
-}
-
-.input-display.player2 {
-  border-color: #e74c3c;
-  background: rgba(231, 76, 60, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 150px;
 }
 
 .player-label {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-  opacity: 0.8;
+  font-size: 1.1rem;
   font-weight: bold;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.input-display.player1 .player-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.input-display.player2 .player-label {
+  color: #fd7e14;
 }
 
 .input-value {
   font-size: 15vw;
   font-weight: bold;
-  color: #f1c40f;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+  text-align: center;
+  padding: 20px;
+  border-radius: 15px;
+  min-width: 120px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid;
+  position: relative;
+}
+
+.input-display.player1 .input-value {
+  color: #2c3e50;
+  text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+  border-color: rgba(44, 62, 80, 0.4);
+  background: rgba(255,255,255,0.9);
+}
+
+.input-display.player2 .input-value {
+  color: white;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+  border-color: rgba(255,255,255,0.3);
+  background: linear-gradient(135deg, #fd7e14, #e8590c);
 }
 
 .negative-indicator {
-  color: #e74c3c;
   margin-right: 5px;
   font-weight: bold;
+}
+
+.input-display.player1 .negative-indicator {
+  color: #c0392b;
+}
+
+.input-display.player2 .negative-indicator {
+  color: #e74c3c;
+}
+
+.auto-validate-progress {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f1c40f, #e67e22);
+  transition: width 0.1s ease;
+  border-radius: 2px;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0.9;
 }
 
 
@@ -932,48 +910,4 @@ export default {
   padding: 20px;
   border: 1px solid rgba(255,255,255,0.1);
 }
-
-/* Styles responsive pour le plein écran */
-@media (max-width: 768px) {
-  .fullscreen-overlay {
-    padding: 10px;
-  }
-
-  .fullscreen-header {
-    padding: 15px 20px;
-  }
-
-  .fullscreen-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .fullscreen-body {
-    padding: 20px;
-  }
-
-  .detailed-stats {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .game-info-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-
-
-  .stat-section h3 {
-    font-size: 1.2rem;
-  }
-
-  .close-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 1.2rem;
-  }
-}
-
-
 </style>

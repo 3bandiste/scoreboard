@@ -227,6 +227,9 @@ export default {
       // Arrêter le timer existant s'il y en a un
       this.stopAutoValidateTimer();
 
+      // Émettre le début du timer
+      this.$emit('auto-validate-start');
+
       // Démarrer un nouveau timer de 3 secondes
       this.autoValidateTimer = setTimeout(() => {
         if (this.currentInput || this.isNegativeMode) {
@@ -239,6 +242,8 @@ export default {
       if (this.autoValidateTimer) {
         clearTimeout(this.autoValidateTimer);
         this.autoValidateTimer = null;
+        // Émettre l'arrêt du timer
+        this.$emit('auto-validate-stop');
       }
     }
   },
@@ -367,15 +372,13 @@ export default {
 }
 
 .total-score {
-  font-size: 17vw;
+  font-size: 20vw;
   font-weight: bold;
   text-align: center;
   margin: 5px 0;
   text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
-  border: 4px solid rgba(255,255,255,0.3);
   padding: 10px 5px;
   border-radius: 15px;
-  background: rgba(0,0,0,0.2);
   min-width: 200px;
   position: relative;
 }
@@ -572,8 +575,6 @@ export default {
 .white-player .total-score {
   color: #2c3e50;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-  border-color: rgba(44, 62, 80, 0.3);
-  background: rgba(255,255,255,0.3);
 }
 
 .white-player .player-name:hover {

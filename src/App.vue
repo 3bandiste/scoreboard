@@ -12,6 +12,8 @@
         @negative-mode-change="updatePlayerNegativeMode(1, $event)"
         @undo-last-series="undoLastSeries(1)"
         @update-name="updatePlayerName(1, $event)"
+        @auto-validate-start="startAutoValidateProgress(1)"
+        @auto-validate-stop="stopAutoValidateProgress(1)"
       />
     </div>
 
@@ -27,6 +29,8 @@
         :player2-score="player2.score"
         :player1-name="player1.name"
         :player2-name="player2.name"
+        :auto-validate-progress="autoValidateProgress"
+        :auto-validate-active="autoValidateActive"
         @increment-reprise="incrementReprise"
         @decrement-reprise="decrementReprise"
         @new-game="newGame"
@@ -46,6 +50,8 @@
         @negative-mode-change="updatePlayerNegativeMode(2, $event)"
         @undo-last-series="undoLastSeries(2)"
         @update-name="updatePlayerName(2, $event)"
+        @auto-validate-start="startAutoValidateProgress(2)"
+        @auto-validate-stop="stopAutoValidateProgress(2)"
       />
     </div>
 
@@ -82,8 +88,11 @@ export default {
       player2Input: '',
       player1Negative: false,
       player2Negative: false,
+      autoValidateProgress: 0,
+      autoValidateActive: false,
       reprises: [],
-      saveTimeout: null
+      saveTimeout: null,
+      progressInterval: null
     }
   },
   mounted() {
@@ -99,6 +108,10 @@ export default {
     // Nettoyer le timeout de sauvegarde
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
+    }
+    // Nettoyer l'interval de progression
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
     }
   },
   watch: {
@@ -332,6 +345,31 @@ export default {
         console.log('Données de partie effacées');
       } catch (error) {
         console.error('Erreur lors de l\'effacement:', error);
+      }
+    },
+    startAutoValidateProgress(playerNum) {
+      this.autoValidateActive = true;
+      this.autoValidateProgress = 0;
+
+      // Animer la progression sur 3 secondes
+      const progressInterval = setInterval(() => {
+        this.autoValidateProgress += 1;
+        if (this.autoValidateProgress >= 100) {
+          clearInterval(progressInterval);
+        }
+      }, 30); // 30ms * 100 = 3000ms (3 secondes)
+
+      // Stocker l'interval pour pouvoir l'arrêter
+      this.progressInterval = progressInterval;
+    },
+    stopAutoValidateProgress(playerNum) {
+      this.autoValidateActive = false;
+      this.autoValidateProgress = 0;
+
+      // Arrêter l'animation de progression
+      if (this.progressInterval) {
+        clearInterval(this.progressInterval);
+        this.progressInterval = null;
       }
     },
     swapPlayerNames() {

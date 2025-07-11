@@ -4,8 +4,8 @@
     <div class="reprises-table">
       <div class="table-header">
         <div class="col-reprise">Rep.</div>
-        <div class="col-player1-header">Joueur 1</div>
-        <div class="col-player2-header">Joueur 2</div>
+        <div class="col-player1-header">{{ player1Name || 'Joueur 1' }}</div>
+        <div class="col-player2-header">{{ player2Name || 'Joueur 2' }}</div>
       </div>
       <div class="table-subheader">
         <div class="col-reprise"></div>
@@ -39,6 +39,14 @@ export default {
     nbReprisesToShow: {
       type: Number,
       required: false,
+    },
+    player1Name: {
+      type: String,
+      default: ''
+    },
+    player2Name: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -95,7 +103,7 @@ export default {
 .recent-reprises {
   margin-top: 20px;
   padding: 15px;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.8);
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.1);
   position: relative;
