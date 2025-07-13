@@ -173,11 +173,17 @@ export default {
   methods: {
     incrementReprise() {
       if (!this.hasInputInProgress) {
+        if (navigator.vibrate) {
+          navigator.vibrate(100); // Vibration de 50ms
+        }
         this.$emit('increment-reprise');
       }
     },
     decrementReprise() {
       if (!this.hasInputInProgress) {
+        if (navigator.vibrate) {
+          navigator.vibrate(100); // Vibration de 50ms
+        }
         this.$emit('decrement-reprise');
       }
     },
