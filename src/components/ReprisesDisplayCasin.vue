@@ -18,12 +18,11 @@
       <h3>Derniers coups</h3>
       <div class="shots-list">
         <div
-          v-for="(shot, index) in recentShots.slice(-10)"
+          v-for="(shot, index) in recentShots.slice(-10).reverse()"
           :key="index"
           class="shot-item"
           :class="{ 'player1': shot.player === 1, 'player2': shot.player === 2 }"
         >
-          <span class="shot-player">{{ shot.playerName || ('Joueur ' + shot.player) }}</span>
           <span class="shot-type">{{ formatShotType(shot.type) }}</span>
         </div>
       </div>
@@ -71,7 +70,7 @@ export default {
         'bande1': '1 Bande',
         'bande2': '2 Bandes',
         'bande3': '3 Bandes',
-        'main-gauche': 'Main gauche',
+        'main-gauche': 'Gauche',
         'bande-avant': 'Bande avant'
       };
       return shotTypes[type] || type;
@@ -85,15 +84,13 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 5px;
   gap: 20px;
 }
 
 .game-actions {
   display: flex;
+  flex-direction: column;
   gap: 15px;
   justify-content: center;
 }
@@ -171,7 +168,6 @@ export default {
   padding: 8px 12px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
-  border-left: 4px solid #3498db;
   font-size: 0.85rem;
 }
 
@@ -191,7 +187,7 @@ export default {
 
 .shot-type {
   flex: 1;
-  text-align: right;
+  text-align: center;
   color: #f1c40f;
   font-weight: bold;
 }
@@ -203,7 +199,6 @@ export default {
 
 .undo-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 5px;
   padding: 12px 20px;

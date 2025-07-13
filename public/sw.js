@@ -1,4 +1,4 @@
-const CACHE_NAME = 'scoreboard-v3.0';
+const CACHE_NAME = 'scoreboard-v3.2';
 const urlsToCache = [
     '/',
     '/index.html',

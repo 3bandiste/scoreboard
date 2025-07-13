@@ -49,7 +49,7 @@
         }"
       >
         <span class="shot-label">{{ shotType.label }}</span>
-        <span class="shot-score">{{ categoryScores[shotType.key] || 0 }} / {{ pattes }}</span>
+        <span class="shot-score">{{ categoryScores[shotType.key] || 0 }}</span>
       </button>
     </div>
 
@@ -101,8 +101,8 @@ export default {
         { key: 'bande1', label: '1 Bande' },
         { key: 'bande2', label: '2 Bandes' },
         { key: 'bande3', label: '3 Bandes' },
-        { key: 'main-gauche', label: 'Main gauche' },
-        { key: 'bande-avant', label: 'Bande avant' }
+        { key: 'main-gauche', label: 'Gauche' },
+        { key: 'bande-avant', label: 'B. Avant' }
       ]
     }
   },
@@ -407,13 +407,12 @@ export default {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   width: 100%;
-  max-width: 600px;
   flex: 1;
 }
 
 .shot-btn {
   position: relative;
-  padding: 18px 20px;
+  padding: 25px;
   font-size: 1rem;
   font-weight: bold;
   border: none;
@@ -431,6 +430,8 @@ export default {
   align-items: center;
   gap: 15px;
   border: 2px solid rgba(255, 255, 255, 0.2);
+  height: 80px;
+  min-height: 80px;
 }
 
 .shot-btn:hover {
@@ -464,12 +465,11 @@ export default {
 }
 
 .shot-score {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #f1c40f;
+  color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   text-align: right;
-  min-width: 60px;
 }
 
 

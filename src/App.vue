@@ -645,7 +645,7 @@ export default {
 }
 
 .center-section {
-  flex: 3 1 0;
+  flex: 1 1 0;
   min-width: 0;
   background: linear-gradient(135deg, #34495e, #2c3e50);
   border-left: 3px solid #7f8c8d;
