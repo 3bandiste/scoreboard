@@ -115,6 +115,11 @@ export default {
   methods: {
     addDigit(digit) {
       if (this.currentInput.length < 3) {
+        // Ajouter une vibration courte pour le retour haptique
+        if (navigator.vibrate) {
+          navigator.vibrate(100); // Vibration de 50ms
+        }
+
         this.currentInput += digit.toString();
         this.$emit('input-change', this.currentInput);
         // Réinitialiser l'état du bouton C lors de la saisie
