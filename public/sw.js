@@ -1,18 +1,24 @@
-const CACHE_NAME = 'scoreboard-v2.2';
+const CACHE_NAME = 'scoreboard-v3.0';
 const urlsToCache = [
     '/',
     '/index.html',
     '/src/main.js',
     '/src/App.vue',
     '/src/components/PlayerScore.vue',
+    '/src/components/PlayerScoreCasin.vue',
     '/src/components/ReprisesDisplay.vue',
+    '/src/components/ReprisesDisplayCasin.vue',
     '/src/components/InstallPrompt.vue',
+    '/src/components/ModeSelector.vue',
+    '/src/components/ReprisesTable.vue',
     '/manifest.json',
-    '/icon-192.png',
-    '/icon-512.png',
+    '/favicon-192.png',
+    '/favicon-512.png',
     '/logo-voisins-2.png',
     '/favicon.ico',
-    '/favicon.png'
+    '/favicon-16.png',
+    '/favicon-32.png',
+    '/favicon-48.png'
 ];
 
 // Fonction pour vérifier si une requête doit être cachée
@@ -87,48 +93,76 @@ self.addEventListener('fetch', event => {
         return; // Laisser passer la requête normalement
     }
 
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Cache hit - retourner la réponse depuis le cache
-                if (response) {
-                    return response;
-                }
+    // Stratégie "Network First" pour les fichiers critiques (HTML, JS, CSS)
+    const url = new URL(event.request.url);
+    const isCritical = url.pathname.endsWith('.html') ||
+        url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.css') ||
+        url.pathname === '/';
 
-                // Sinon, faire la requête réseau
-                return fetch(event.request).then(response => {
-                    // Vérifier si on a reçu une réponse valide
-                    if (!response || response.status !== 200 || response.type !== 'basic') {
-                        console.log('Réponse non cachable:', event.request.url, response.status);
+    if (isCritical) {
+        // Network First pour les fichiers critiques
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    if (response && response.status === 200) {
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME)
+                            .then(cache => cache.put(event.request, responseToCache))
+                            .catch(error => console.warn('Erreur cache:', error));
+                    }
+                    return response;
+                })
+                .catch(() => {
+                    // Fallback sur le cache si network fail
+                    return caches.match(event.request);
+                })
+        );
+    } else {
+        // Cache First pour les autres ressources
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => {
+                    if (response) {
                         return response;
                     }
 
-                    // Cloner la réponse
-                    const responseToCache = response.clone();
+                    return fetch(event.request).then(response => {
+                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                            return response;
+                        }
 
-                    // Cacher la réponse de manière asynchrone
-                    caches.open(CACHE_NAME)
-                        .then(cache => {
-                            try {
-                                cache.put(event.request, responseToCache);
-                            } catch (error) {
-                                console.warn('Erreur lors de la mise en cache:', event.request.url, error);
-                            }
-                        })
-                        .catch(error => {
-                            console.warn('Erreur ouverture cache:', error);
-                        });
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME)
+                            .then(cache => {
+                                try {
+                                    cache.put(event.request, responseToCache);
+                                } catch (error) {
+                                    console.warn('Erreur lors de la mise en cache:', event.request.url, error);
+                                }
+                            })
+                            .catch(error => {
+                                console.warn('Erreur ouverture cache:', error);
+                            });
 
-                    return response;
-                }).catch(error => {
-                    console.error('Erreur requête réseau:', event.request.url, error);
-                    throw error;
-                });
-            })
-            .catch(error => {
-                console.error('Erreur cache match:', event.request.url, error);
-                // En cas d'erreur, essayer la requête réseau directement
-                return fetch(event.request);
-            })
-    );
+                        return response;
+                    }).catch(error => {
+                        console.error('Erreur requête réseau:', event.request.url, error);
+                        throw error;
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur cache match:', event.request.url, error);
+                    return fetch(event.request);
+                })
+        );
+    }
+});
+
+// Écouter les messages pour forcer les mises à jour
+self.addEventListener('message', event => {
+    if (event.data.type === 'FORCE_UPDATE') {
+        console.log('Mise à jour forcée demandée');
+        self.skipWaiting();
+    }
 });
