@@ -82,7 +82,7 @@
       </div>
 
       <!-- Centre - Affichage Casin -->
-      <div class="center-section">
+      <div class="center-section casin">
         <ReprisesDisplayCasin
           :recent-shots="recentShots"
           :can-undo="canUndo"
@@ -645,7 +645,7 @@ export default {
 }
 
 .center-section {
-  flex: 1 1 0;
+  flex: 3 1 0;
   min-width: 0;
   background: linear-gradient(135deg, #34495e, #2c3e50);
   border-left: 3px solid #7f8c8d;
@@ -656,6 +656,9 @@ export default {
   box-sizing: border-box;
 }
 
+.center-section.casin {
+  flex: 1 1 0;
+}
 
 
 @media (max-width: 768px) {
