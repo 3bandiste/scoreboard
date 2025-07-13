@@ -46,7 +46,7 @@
       </div>
     </div>
     <div>
-      <ReprisesTable :reprises="reprises" :nbReprisesToShow="10" :player1-name="player1Name" :player2-name="player2Name" />
+      <ReprisesTable :reprises="reprises" :nbReprisesToShow="5" :player1-name="player1Name" :player2-name="player2Name" />
     </div>
     <button @click="$emit('new-game')" class="new-game-btn">
         🎯 Nouvelle partie
@@ -281,6 +281,7 @@ export default {
 
 .reprise-number-big {
   font-size: 15vw;
+  line-height: 12vw;
   font-weight: bold;
   color: #f1c40f;
   text-shadow: 3px 3px 6px rgba(0,0,0,0.7);

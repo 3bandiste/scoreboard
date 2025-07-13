@@ -378,6 +378,7 @@ export default {
 
 .total-score {
   font-size: 20vw;
+  line-height: 13vw;
   font-weight: bold;
   text-align: center;
   margin: 5px 0;
@@ -391,8 +392,8 @@ export default {
 .player-metrics {
   display: flex;
   justify-content: space-around;
-  gap: 10px;
-  padding: 10px;
+  gap: 15px;
+  padding: 8px 12px;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -400,9 +401,10 @@ export default {
 
 .metric-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
 .metric-label {
