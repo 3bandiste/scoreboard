@@ -11,10 +11,13 @@
         </div>
         <div class="action-buttons">
           <button @click="$emit('swap-names')" class="swap-names-btn">
-            ⇄ Echanger noms
+            ⇄
+          </button>
+          <button @click="$emit('new-game')" class="new-game-btn">
+            Nouvelle partie
           </button>
           <button @click="toggleFullscreen" class="fullscreen-btn">
-            📄 Feuille de match
+            📄
           </button>
         </div>
       </div>
@@ -48,9 +51,7 @@
     <div>
       <ReprisesTable :reprises="reprises" :nbReprisesToShow="5" :player1-name="player1Name" :player2-name="player2Name" />
     </div>
-    <button @click="$emit('new-game')" class="new-game-btn">
-        🎯 Nouvelle partie
-    </button>
+
   </div>
 
   <!-- Overlay plein écran -->
@@ -353,51 +354,18 @@ export default {
   pointer-events: none;
 }
 
-.reset-reprise-btn-mini {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  width: 30px;
-  height: 30px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(243, 156, 18, 0.8);
-  color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  line-height: 1;
-  -webkit-appearance: none;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-}
-
-.reset-reprise-btn-mini:hover {
-  background: rgba(230, 126, 34, 0.9);
-  transform: scale(1.1);
-}
-
-.reset-reprise-btn-mini:active {
-  transform: scale(0.95);
-}
-
 .action-buttons {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
-  justify-content: center;
+  margin-top: 5px;
+  align-items: stretch;
+  justify-content: space-between;
+  align-self: stretch;
 }
 
 .swap-names-btn {
-  padding: 8px 12px;
-  font-size: 0.9rem;
+  padding: 15px;
+  font-size: 2rem;
   font-weight: bold;
   border: none;
   border-radius: 8px;
@@ -417,6 +385,7 @@ export default {
   -webkit-touch-callout: none;
   flex: 1;
   min-width: 0;
+  height: 60px;
 }
 
 .swap-names-btn:hover {
@@ -428,8 +397,8 @@ export default {
 }
 
 .fullscreen-btn {
-  padding: 8px 12px;
-  font-size: 0.9rem;
+  padding: 15px;
+  font-size: 2rem;
   font-weight: bold;
   border: none;
   border-radius: 8px;
@@ -449,6 +418,7 @@ export default {
   -webkit-touch-callout: none;
   flex: 1;
   min-width: 0;
+  height: 60px;
 }
 
 .fullscreen-btn:hover {
@@ -460,18 +430,16 @@ export default {
 }
 
 .new-game-btn {
-  padding: 15px 25px;
+  padding: 15px;
   font-size: 1.2rem;
   font-weight: bold;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  background: #8e44ad;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
   color: white;
-  margin-top: auto;
-  margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -483,6 +451,9 @@ export default {
   -webkit-touch-callout: none;
   position: relative;
   z-index: 2;
+  flex: 5;
+  min-width: 0;
+  height: 60px;
 }
 
 .new-game-btn:hover {

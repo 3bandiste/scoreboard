@@ -1,61 +1,113 @@
 <template>
   <div class="scoreboard">
-    <!-- Joueur 1 - Gauche -->
-    <div class="player-section left">
-      <PlayerScore
-        :player="player1"
-        :is-player1="true"
-        :reprises="reprises"
-        @update-score="updatePlayerScore(1, $event)"
-        @add-series="addSeries(1, $event)"
-        @input-change="updatePlayerInput(1, $event)"
-        @negative-mode-change="updatePlayerNegativeMode(1, $event)"
-        @undo-last-series="undoLastSeries(1)"
-        @update-name="updatePlayerName(1, $event)"
-        @auto-validate-start="startAutoValidateProgress(1)"
-        @auto-validate-stop="stopAutoValidateProgress(1)"
-      />
-    </div>
+    <!-- Sélecteur de mode -->
+    <ModeSelector
+      :showModal="showModeSelector"
+      @mode-selected="onModeSelected"
+      @cancel="showModeSelector = false"
+    />
 
-    <!-- Centre - Reprises -->
-    <div class="center-section">
-            <ReprisesDisplay
-        :reprises="reprises"
-        :player1-input="player1Input"
-        :player2-input="player2Input"
-        :player1-negative="player1Negative"
-        :player2-negative="player2Negative"
-        :player1-score="player1.score"
-        :player2-score="player2.score"
-        :player1-name="player1.name"
-        :player2-name="player2.name"
-        :auto-validate-progress="autoValidateProgress"
-        :auto-validate-active="autoValidateActive"
-        @increment-reprise="incrementReprise"
-        @decrement-reprise="decrementReprise"
-        @new-game="newGame"
-        @swap-names="swapPlayerNames"
-      />
-    </div>
+    <!-- Mode Carambole -->
+    <template v-if="gameMode === 'carambole'">
+      <!-- Joueur 1 - Gauche -->
+      <div class="player-section left">
+        <PlayerScore
+          :player="player1"
+          :is-player1="true"
+          :reprises="reprises"
+          @update-score="updatePlayerScore(1, $event)"
+          @add-series="addSeries(1, $event)"
+          @input-change="updatePlayerInput(1, $event)"
+          @negative-mode-change="updatePlayerNegativeMode(1, $event)"
+          @undo-last-series="undoLastSeries(1)"
+          @update-name="updatePlayerName(1, $event)"
+          @auto-validate-start="startAutoValidateProgress(1)"
+          @auto-validate-stop="stopAutoValidateProgress(1)"
+        />
+      </div>
 
-    <!-- Joueur 2 - Droite -->
-    <div class="player-section right">
-      <PlayerScore
-        :player="player2"
-        :is-player1="false"
-        :reprises="reprises"
-        @update-score="updatePlayerScore(2, $event)"
-        @add-series="addSeries(2, $event)"
-        @input-change="updatePlayerInput(2, $event)"
-        @negative-mode-change="updatePlayerNegativeMode(2, $event)"
-        @undo-last-series="undoLastSeries(2)"
-        @update-name="updatePlayerName(2, $event)"
-        @auto-validate-start="startAutoValidateProgress(2)"
-        @auto-validate-stop="stopAutoValidateProgress(2)"
-      />
-    </div>
+      <!-- Centre - Reprises -->
+      <div class="center-section">
+        <ReprisesDisplay
+          :reprises="reprises"
+          :player1-input="player1Input"
+          :player2-input="player2Input"
+          :player1-negative="player1Negative"
+          :player2-negative="player2Negative"
+          :player1-score="player1.score"
+          :player2-score="player2.score"
+          :player1-name="player1.name"
+          :player2-name="player2.name"
+          :auto-validate-progress="autoValidateProgress"
+          :auto-validate-active="autoValidateActive"
+          @increment-reprise="incrementReprise"
+          @decrement-reprise="decrementReprise"
+          @new-game="showNewGameModal"
+          @swap-names="swapPlayerNames"
+        />
+      </div>
 
-    <!-- Prompt d'installation PWA -->
+      <!-- Joueur 2 - Droite -->
+      <div class="player-section right">
+        <PlayerScore
+          :player="player2"
+          :is-player1="false"
+          :reprises="reprises"
+          @update-score="updatePlayerScore(2, $event)"
+          @add-series="addSeries(2, $event)"
+          @input-change="updatePlayerInput(2, $event)"
+          @negative-mode-change="updatePlayerNegativeMode(2, $event)"
+          @undo-last-series="undoLastSeries(2)"
+          @update-name="updatePlayerName(2, $event)"
+          @auto-validate-start="startAutoValidateProgress(2)"
+          @auto-validate-stop="stopAutoValidateProgress(2)"
+        />
+      </div>
+    </template>
+
+    <!-- Mode Casin -->
+    <template v-if="gameMode === 'casin'">
+      <!-- Joueur 1 - Gauche -->
+      <div class="player-section left">
+        <PlayerScoreCasin
+          ref="playerScoreCasin1"
+          :player="player1"
+          :is-player1="true"
+          @update-name="updatePlayerName(1, $event)"
+          @update-pattes="updatePlayerPattes(1, $event)"
+          @shot-added="onShotAdded(1, $event)"
+          @victory-achieved="onVictoryAchieved(1)"
+          @reset-scores="resetPlayerScores(1)"
+        />
+      </div>
+
+      <!-- Centre - Affichage Casin -->
+      <div class="center-section">
+        <ReprisesDisplayCasin
+          :recent-shots="recentShots"
+          :can-undo="canUndo"
+          @new-game="showNewGameModal"
+          @swap-names="swapPlayerNames"
+          @undo-last-action="undoLastAction"
+        />
+      </div>
+
+      <!-- Joueur 2 - Droite -->
+      <div class="player-section right">
+        <PlayerScoreCasin
+          ref="playerScoreCasin2"
+          :player="player2"
+          :is-player1="false"
+          @update-name="updatePlayerName(2, $event)"
+          @update-pattes="updatePlayerPattes(2, $event)"
+          @shot-added="onShotAdded(2, $event)"
+          @victory-achieved="onVictoryAchieved(2)"
+          @reset-scores="resetPlayerScores(2)"
+        />
+      </div>
+    </template>
+
+    <!-- InstallPrompt -->
     <InstallPrompt />
   </div>
 </template>
@@ -64,25 +116,37 @@
 import PlayerScore from './components/PlayerScore.vue'
 import ReprisesDisplay from './components/ReprisesDisplay.vue'
 import InstallPrompt from './components/InstallPrompt.vue'
+import ModeSelector from './components/ModeSelector.vue'
+import PlayerScoreCasin from './components/PlayerScoreCasin.vue'
+import ReprisesDisplayCasin from './components/ReprisesDisplayCasin.vue'
 
 export default {
   name: 'App',
   components: {
     PlayerScore,
     ReprisesDisplay,
-    InstallPrompt
+    InstallPrompt,
+    ModeSelector,
+    PlayerScoreCasin,
+    ReprisesDisplayCasin
   },
   data() {
     return {
       player1: {
         id: 'player1',
         name: 'Joueur 1',
-        currentSeries: 0
+        currentSeries: 0,
+        pattes: 5,
+        shots: [],
+        sets: []
       },
       player2: {
         id: 'player2',
         name: 'Joueur 2',
-        currentSeries: 0
+        currentSeries: 0,
+        pattes: 5,
+        shots: [],
+        sets: []
       },
       player1Input: '',
       player2Input: '',
@@ -92,7 +156,15 @@ export default {
       autoValidateActive: false,
       reprises: [],
       saveTimeout: null,
-      progressInterval: null
+      progressInterval: null,
+      gameMode: 'carambole', // 'carambole' or 'casin'
+      showModeSelector: false,
+      totalSets: 0,
+      gameTime: 0,
+      recentShots: [],
+      canUndo: false,
+      gameStartTime: null,
+      gameTimer: null
     }
   },
   mounted() {
@@ -100,7 +172,11 @@ export default {
     this.$nextTick(() => {
       // Petite pause pour éviter les conflits avec le service worker
       setTimeout(() => {
-        this.loadGameData();
+        const hasData = this.loadGameData();
+        // Afficher le sélecteur de mode au démarrage si pas de données sauvegardées
+        if (!hasData) {
+          this.showModeSelector = true;
+        }
       }, 100);
     });
   },
@@ -113,6 +189,8 @@ export default {
     if (this.progressInterval) {
       clearInterval(this.progressInterval);
     }
+    // Nettoyer le timer de jeu
+    this.stopGameTimer();
   },
   watch: {
     // Sauvegarder automatiquement lors des changements
@@ -129,6 +207,15 @@ export default {
       deep: true
     },
     reprises: {
+      handler() {
+        this.saveGameData();
+      },
+      deep: true
+    },
+    gameMode() {
+      this.saveGameData();
+    },
+    recentShots: {
       handler() {
         this.saveGameData();
       },
@@ -224,6 +311,14 @@ export default {
       }
     },
     newGame() {
+      // Afficher le sélecteur de mode pour une nouvelle partie
+      this.showModeSelector = true;
+    },
+
+    resetGame() {
+      // Arrêter le timer de jeu
+      this.stopGameTimer();
+
       // Remise à zéro des scores
       this.player1.score = 0;
       this.player2.score = 0;
@@ -236,6 +331,32 @@ export default {
       this.player2Input = '';
       this.player1Negative = false;
       this.player2Negative = false;
+
+      // Remise à zéro des données casin
+      this.totalSets = 0;
+      this.gameTime = 0;
+      this.recentShots = [];
+      this.canUndo = false;
+
+      // Réinitialiser les données joueurs pour le casin
+      this.player1.pattes = 5;
+      this.player1.shots = [];
+      this.player1.sets = [];
+      this.player2.pattes = 5;
+      this.player2.shots = [];
+      this.player2.sets = [];
+
+      // Réinitialiser les scores des composants PlayerScoreCasin si en mode casin
+      if (this.gameMode === 'casin') {
+        this.$nextTick(() => {
+          if (this.$refs.playerScoreCasin1) {
+            this.$refs.playerScoreCasin1.resetAllScores();
+          }
+          if (this.$refs.playerScoreCasin2) {
+            this.$refs.playerScoreCasin2.resetAllScores();
+          }
+        });
+      }
 
       // Effacer les données sauvegardées
       this.clearGameData();
@@ -253,10 +374,14 @@ export default {
             player1Negative: this.player1Negative,
             player2Negative: this.player2Negative,
             reprises: this.reprises,
+            gameMode: this.gameMode,
+            recentShots: this.recentShots,
+            canUndo: this.canUndo,
+            gameTime: this.gameTime,
             lastSaved: new Date().toISOString()
           };
 
-                    localStorage.setItem('scoreboard-game-data', JSON.stringify(gameData));
+          localStorage.setItem('scoreboard-game-data', JSON.stringify(gameData));
         } catch (error) {
           console.error('Erreur lors de la sauvegarde:', error);
         }
@@ -275,28 +400,43 @@ export default {
             return;
           }
 
-          // Restaurer les données
+          // Restaurer les données de base
           this.player1 = { ...this.player1, ...gameData.player1 };
           this.player2 = { ...this.player2, ...gameData.player2 };
           this.player1Input = gameData.player1Input || '';
           this.player2Input = gameData.player2Input || '';
           this.player1Negative = gameData.player1Negative || false;
           this.player2Negative = gameData.player2Negative || false;
-
           this.reprises = Array.isArray(gameData.reprises) ? gameData.reprises : [];
+
+          // Restaurer les données de mode
+          this.gameMode = gameData.gameMode || 'carambole';
+          this.recentShots = Array.isArray(gameData.recentShots) ? gameData.recentShots : [];
+          this.canUndo = gameData.canUndo || false;
+          this.gameTime = gameData.gameTime || 0;
+
+          // Redémarrer le timer si en mode casin et qu'il y a du temps
+          if (this.gameMode === 'casin' && this.gameTime > 0) {
+            this.startGameTimer();
+          }
 
           if (gameData.lastSaved) {
             console.log('Données de partie restaurées du', gameData.lastSaved);
           } else {
             console.log('Données de partie restaurées');
           }
+
+          // Si on a des données sauvegardées, ne pas afficher le sélecteur de mode
+          return true;
         } else {
           console.log('Aucune donnée sauvegardée trouvée, nouvelle partie');
+          return false;
         }
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
         // En cas d'erreur, effacer les données corrompues
         this.clearGameData();
+        return false;
       }
     },
 
@@ -342,6 +482,9 @@ export default {
     clearGameData() {
       try {
         localStorage.removeItem('scoreboard-game-data');
+        // Effacer aussi les scores du mode casin
+        localStorage.removeItem('casinScores_player1');
+        localStorage.removeItem('casinScores_player2');
         console.log('Données de partie effacées');
       } catch (error) {
         console.error('Erreur lors de l\'effacement:', error);
@@ -377,6 +520,95 @@ export default {
       this.player1.name = this.player2.name;
       this.player2.name = tempName;
     },
+              onModeSelected(mode) {
+       this.gameMode = mode;
+       this.showModeSelector = false;
+       this.resetGame(); // Reset game data when mode changes
+
+       // Démarrer le timer pour le mode casin
+       if (mode === 'casin') {
+         this.startGameTimer();
+         // Recharger les scores du mode casin si les composants existent
+         this.$nextTick(() => {
+           if (this.$refs.playerScoreCasin1) {
+             this.$refs.playerScoreCasin1.loadCasinScores();
+           }
+           if (this.$refs.playerScoreCasin2) {
+             this.$refs.playerScoreCasin2.loadCasinScores();
+           }
+         });
+       }
+     },
+     showNewGameModal() {
+       this.showModeSelector = true;
+     },
+     updatePlayerPattes(playerNum, pattes) {
+       if (playerNum === 1) {
+         this.player1.pattes = pattes;
+       } else {
+         this.player2.pattes = pattes;
+       }
+     },
+     onShotAdded(playerNum, shotType) {
+       const shot = {
+         player: playerNum,
+         playerName: playerNum === 1 ? this.player1.name : this.player2.name,
+         type: shotType,
+         timestamp: Date.now()
+       };
+       this.recentShots.push(shot);
+       this.canUndo = true;
+     },
+     onVictoryAchieved(playerNum) {
+       const playerName = playerNum === 1 ? this.player1.name : this.player2.name;
+       console.log(`Victory achieved by player ${playerNum}: ${playerName}`);
+
+       // Arrêter le timer
+       this.stopGameTimer();
+
+       // Optionnel : ajouter une notification de victoire
+       this.$emit('game-won', {
+         player: playerNum,
+         playerName,
+         gameTime: this.gameTime
+       });
+     },
+     resetPlayerScores(playerNum) {
+       console.log(`Resetting scores for player ${playerNum}`);
+     },
+     undoLastAction() {
+       if (this.gameMode === 'casin') {
+         // En mode casin, annuler le dernier coup du dernier joueur qui a joué
+         if (this.recentShots.length > 0) {
+           const lastShot = this.recentShots[this.recentShots.length - 1];
+           if (lastShot.player === 1 && this.$refs.playerScoreCasin1) {
+             this.$refs.playerScoreCasin1.undoLastShot();
+           } else if (lastShot.player === 2 && this.$refs.playerScoreCasin2) {
+             this.$refs.playerScoreCasin2.undoLastShot();
+           }
+           this.recentShots.pop();
+           this.canUndo = this.recentShots.length > 0;
+         }
+       } else {
+         // Mode carambole (comportement existant)
+         if (this.recentShots.length > 0) {
+           this.recentShots.pop();
+           this.canUndo = this.recentShots.length > 0;
+         }
+       }
+     },
+     startGameTimer() {
+       this.gameStartTime = Date.now();
+       this.gameTimer = setInterval(() => {
+         this.gameTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
+       }, 1000);
+     },
+     stopGameTimer() {
+       if (this.gameTimer) {
+         clearInterval(this.gameTimer);
+         this.gameTimer = null;
+       }
+     }
   }
 }
 </script>
